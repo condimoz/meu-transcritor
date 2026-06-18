@@ -17,6 +17,7 @@ else:
     str.error("Chave de API do Gemini não configurada nas variáveis de ambiente.")
 
 # Função para baixar apenas o áudio do YouTube
+
 def baixar_audio_youtube(url):
     ydl_opts = {
         'format': 'bestaudio/best',
