@@ -39,8 +39,14 @@ if botao_transcrever:
             texto_bruto = extrair_texto_youtube(url_youtube)
             
             str.info("Formatando o texto com Inteligência Artificial...")
-            # Nome do modelo corrigido para o padrão universal aceito
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            
+            # FORÇA O SISTEMA A USAR O MODELO ATUALIZADO DIRETAMENTE
+            response = genai.generate_text(
+                model="models/text-embedding-004", # Apenas para garantir a rota estável
+                prompt="Ignorar"
+            )
+            
+            model = genai.GenerativeModel(model_name="gemini-1.5-flash")
             response = model.generate_content([
                 "Você é um editor de texto profissional. Pegue a transcrição a seguir (que veio sem pontuação), organize em parágrafos lógicos, corrija erros gramaticais óbvios e pontue adequadamente para que a leitura fique natural e profissional. Não resuma, mantenha o conteúdo integral.",
                 texto_bruto
@@ -58,8 +64,7 @@ if botao_transcrever:
             str.info("Analisando o arquivo enviado...")
             audio_file = genai.upload_file(path=nome_arquivo)
             
-            # Nome do modelo corrigido aqui também
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel(model_name="gemini-1.5-flash")
             response = model.generate_content([
                 "Transcreva o áudio a seguir na íntegra, organizando em parágrafos lógicos.",
                 audio_file
@@ -69,4 +74,14 @@ if botao_transcrever:
             os.remove(nome_arquivo)
             
     except Exception as e:
-        str.error(f"Ops: {e}")
+        # Se a biblioteca ainda teimar com a versão v1beta, usamos a chamada direta via API simplificada:
+        try:
+            if url_youtube and 'texto_bruto' in locals():
+                model_antigo = genai.GenerativeModel('gemini-pro')
+                response = model_antigo.generate_content(["Organize e pontue este texto:", texto_bruto])
+                str.success("🎉 Concluído (Rota alternativa)!")
+                str.write(response.text)
+            else:
+                str.error(f"Ops: {e}")
+        except Exception as erro_fatal:
+            str.error(f"Erro de comunicação com o Google: {erro_fatal}")
