@@ -39,8 +39,8 @@ if botao_transcrever:
             texto_bruto = extrair_texto_youtube(url_youtube)
             
             str.info("Formatando o texto com Inteligência Artificial...")
-            # Atualizado para a versão estável mais recente
-            model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+            # Nome do modelo corrigido para o padrão universal aceito
+            model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content([
                 "Você é um editor de texto profissional. Pegue a transcrição a seguir (que veio sem pontuação), organize em parágrafos lógicos, corrija erros gramaticais óbvios e pontue adequadamente para que a leitura fique natural e profissional. Não resuma, mantenha o conteúdo integral.",
                 texto_bruto
@@ -58,8 +58,8 @@ if botao_transcrever:
             str.info("Analisando o arquivo enviado...")
             audio_file = genai.upload_file(path=nome_arquivo)
             
-            # Atualizado para a versão estável mais recente aqui também
-            model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+            # Nome do modelo corrigido aqui também
+            model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content([
                 "Transcreva o áudio a seguir na íntegra, organizando em parágrafos lógicos.",
                 audio_file
