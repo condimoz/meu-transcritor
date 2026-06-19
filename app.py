@@ -39,7 +39,7 @@ if botao_transcrever:
             texto_bruto = extrair_texto_youtube(url_youtube)
             
             str.info("Formatando o texto com Inteligência Artificial...")
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content([
                 "Você é um editor de texto profissional. Pegue a transcrição a seguir (que veio sem pontuação), organize em parágrafos lógicos, corrija erros gramaticais óbvios e pontue adequadamente para que a leitura fique natural e profissional. Não resuma, mantenha o conteúdo integral.",
                 texto_bruto
