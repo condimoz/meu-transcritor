@@ -2,6 +2,7 @@ import streamlit as str
 from youtube_transcript_api import YouTubeTranscriptApi
 import google.generativeai as genai
 import os
+import time
 
 str.set_page_config(page_title="Transcritor Inteligente", page_icon="🎙️", layout="centered")
 str.title("🎙️ Transcritor de Vídeos e YouTube")
@@ -39,7 +40,6 @@ if botao_transcrever:
             texto_bruto = extrair_texto_youtube(url_youtube)
             
             str.info("Formatando o texto com Inteligência Artificial...")
-            # Atualizado para usar a versão mais recente do Gemini
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content([
                 "Você é um editor de texto profissional. Pegue a transcrição a seguir (que veio sem pontuação), organize em parágrafos lógicos, corrija erros gramaticais óbvios e pontue adequadamente para que a leitura fique natural e profissional. Não resuma, mantenha o conteúdo integral.",
@@ -55,10 +55,19 @@ if botao_transcrever:
             with open(nome_arquivo, "wb") as f:
                 f.write(arquivo_video.getbuffer())
             
-            str.info("Analisando o arquivo enviado...")
+            str.info("Enviando arquivo para o servidor do Google...")
             audio_file = genai.upload_file(path=nome_arquivo)
             
-            # Atualizado para usar a versão mais recente do Gemini aqui também
+            # ESPERA O ARQUIVO FICAR ATIVO NO GOOGLE
+            str.info("Aguardando o processamento do vídeo pelo Google... Isso leva alguns segundos.")
+            while audio_file.state.name == "PROCESSING":
+                time.sleep(3)
+                audio_file = genai.get_file(audio_file.name)
+                
+            if audio_file.state.name == "FAILED":
+                raise Exception("O Google não conseguiu processar o formato deste arquivo.")
+                
+            str.info("Processando a transcrição do áudio...")
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content([
                 "Transcreva o áudio a seguir na íntegra, organizando em parágrafos lógicos.",
@@ -66,7 +75,10 @@ if botao_transcrever:
             ])
             str.success("🎉 Concluído!")
             str.write(response.text)
+            
+            # Limpeza do arquivo local e do servidor do Google
             os.remove(nome_arquivo)
+            genai.delete_file(audio_file.name)
             
     except Exception as e:
         str.error(f"Ops: {e}")
