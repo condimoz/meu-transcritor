@@ -38,7 +38,6 @@ def extrair_texto_youtube(url):
 
 url_youtube = str.text_input("🔗 Link da audiência (YouTube se houver):")
 
-# ADICIONADO '.ogg' NA LISTA DE FORMATOS PERMITIDOS
 arquivo_video = str.file_uploader(
     "📂 Enviar arquivo (Vídeo de Audiência ou Áudio .ogg do WhatsApp):", 
     type=["mp4", "mkv", "mov", "mp3", "wav", "m4a", "ogg"]
@@ -55,7 +54,7 @@ if botao_transcrever:
             str.info("Formatando depoimentos em padrão jurídico...")
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content([
-                "Você é um assistente jurídico de alto nível, especialista em degravações e audiências trabalhistas. Pegue o texto a seguir, identifique pela dinâmica do diálogo quem é o Juiz, o Advogado e o Depoente (Reclamante/Testemunha). Formate o texto como um diálogo formal de termo de audiência, mantendo a marcação de tempo [MM:SS] no início de cada fala relevante. Corrija gagueiras e erros crassos, mas mantenha a literalidade dos fatos narrados pelo depoente para uso em peças processuais.",
+                "Você é um assistente jurídico de alto nível, especialista em degravações e audiências trabalhistas. Pegue o texto a seguir, identifique pela dinâmica do diálogo quem é o Juiz, o Advogado e o Depoente (Reclamante/Testemunha). Formate o texto como um diálogo formal de termo de audiência, mantendo a marcação de tempo [MM:SS] no início de cada fala relevante. Corrija gagueiras e erros crassos, mas mantém a literalidade dos fatos narrados pelo depoente para uso em peças processuais.",
                 texto_bruto
             ])
             
@@ -64,7 +63,9 @@ if botao_transcrever:
             str.download_button(label="📥 Baixar Termo de Degravação (.txt)", data=response.text, file_name="degravacao_audiencia.txt", mime="text/plain")
             
         elif arquivo_video is not None:
-            nome_arquivo = arquivo_video.name
+            # CORREÇÃO AQUI: Remove os espaços em branco do nome do arquivo para não quebrar o sistema
+            nome_original = arquivo_video.name
+            nome_arquivo = nome_original.replace(" ", "_")
             extensao = os.path.splitext(nome_arquivo)[1].lower()
             
             # IDENTIFICAÇÃO AUTOMÁTICA DO TIPO DE ARQUIVO
@@ -91,6 +92,11 @@ if botao_transcrever:
                 )
             
             str.info(f"📱 Enviando mídia de {tipo_midia} para o servidor do Google...")
+            
+            # Salva usando o nome limpo (sem espaços)
+            with open(nome_arquivo, "wb") as f:
+                f.write(arquivo_video.getbuffer())
+                
             audio_file = genai.upload_file(path=nome_arquivo)
             
             str.info("Analisando o áudio... Isso leva alguns segundos.")
