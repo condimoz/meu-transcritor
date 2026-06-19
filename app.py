@@ -3,7 +3,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import google.generativeai as genai
 import os
 
-str.set_page_config(page_title="Transcritor Inteligente", page_icon="🎙️", layout="centered")
+str.set_page_config(page_title="Transcritor Inteligente", page_icon="🎙️", layout="centered")/
 str.title("🎙️ Transcritor de Vídeos e YouTube")
 str.write("Cole o link do YouTube para extrair o texto ou faça upload de um arquivo.")
 
@@ -57,7 +57,7 @@ if botao_transcrever:
             str.info("Analisando o arquivo enviado...")
             audio_file = genai.upload_file(path=nome_arquivo)
             
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content([
                 "Transcreva o áudio a seguir na íntegra, organizando em parágrafos lógicos.",
                 audio_file
